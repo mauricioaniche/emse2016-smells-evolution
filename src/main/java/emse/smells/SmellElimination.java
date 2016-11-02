@@ -46,7 +46,7 @@ public class SmellElimination implements CommitVisitor {
 
 			for(File file : allFiles) {
 				String filePath = file.getCanonicalPath();
-				boolean classIsNotSmelly = !pmdReport.contains(filePath) && linterReport.contains(filePath);
+				boolean classIsNotSmelly = !pmdReport.contains(filePath) && !linterReport.contains(filePath);
 				
 				if(classIsNotSmelly) {
 					print(repo.getLastDir(), commit, writer, filePath, "no");

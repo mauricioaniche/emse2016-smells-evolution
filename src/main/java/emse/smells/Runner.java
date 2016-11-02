@@ -10,7 +10,7 @@ public class Runner {
 		String csvPath = args[1];
 		String pmdPath = System.getenv("EMSE_PMD_PATH");
 		String linterPath = System.getenv("EMSE_SPRINGLINT_PATH");
-//		
+
 //		String projectPath = "/Users/mauricioaniche/workspace/SSP/";
 //		String csvPath = "/Users/mauricioaniche/Desktop/smells-evolution.csv";
 //		String pmdPath = "/Users/mauricioaniche/ferramentas/pmd-bin-5.4.1/bin";
