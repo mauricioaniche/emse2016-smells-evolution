@@ -9,12 +9,17 @@
         </layout>
     </appender>
 
-    <category name="br.com.metricminer2">
+    <category name="org.repodriller">
         <priority value="INFO"/>
         <appender-ref ref="main"/>
     </category>
 
-    <category name="br.com.aniche">
+    <category name="emse">
+        <priority value="INFO"/>
+        <appender-ref ref="main"/>
+    </category>
+
+    <category name="com.github.mauricioaniche.springlint">
         <priority value="INFO"/>
         <appender-ref ref="main"/>
     </category>

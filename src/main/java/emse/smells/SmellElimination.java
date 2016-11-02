@@ -1,9 +1,11 @@
 package emse.smells;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.repodriller.domain.Commit;
@@ -36,7 +38,9 @@ public class SmellElimination implements CommitVisitor {
 		try {
 
 			repo.getScm().checkout(commit.getHash());
-			List<File> allFiles = FileUtils.getAllFilesInPath(repo.getPath());
+			List<File> allFiles = onlyJava(FileUtils.getAllFilesInPath(repo.getPath()));
+			log.info("Identified " + allFiles.size() + " java files");
+
 			Report pmdReport = pmd.run(repo.getPath());
 			Report linterReport = linter.run(repo.getPath());
 
@@ -45,12 +49,12 @@ public class SmellElimination implements CommitVisitor {
 				boolean classIsNotSmelly = !pmdReport.contains(filePath) && linterReport.contains(filePath);
 				
 				if(classIsNotSmelly) {
-					print(commit, writer, filePath, "no");
+					print(repo.getLastDir(), commit, writer, filePath, "no");
 				} else {
 					List<Smell> allSmells = new ArrayList<>(pmdReport.smellsFor(filePath));
 					allSmells.addAll(linterReport.smellsFor(filePath));
 					
-					allSmells.stream().forEach(x -> print(commit, writer, filePath, x.getSmell()));
+					allSmells.stream().forEach(x -> print(repo.getLastDir(), commit, writer, filePath, x.getSmell()));
 				}
 			}
 	
@@ -62,8 +66,21 @@ public class SmellElimination implements CommitVisitor {
 		}
 	}
 
-	private void print(Commit commit, PersistenceMechanism writer, String filePath, String toPrint) {
+	private List<File> onlyJava(List<File> allFilesInPath) {
+		return allFilesInPath.stream()
+				.filter(x -> {
+					try {
+						return x.getCanonicalPath().endsWith(".java");
+					} catch (IOException e) {
+						return false;
+					}
+				})
+				.collect(Collectors.toList());
+	}
+
+	private void print(String project, Commit commit, PersistenceMechanism writer, String filePath, String toPrint) {
 		writer.write(
+			project,
 			commit.getHash(),
 			commitCount,
 			new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(commit.getDate().getTime()),

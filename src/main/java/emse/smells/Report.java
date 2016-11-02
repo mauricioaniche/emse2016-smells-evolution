@@ -24,5 +24,9 @@ public class Report {
 	public boolean contains(String canonicalPath) {
 		return smells.stream().anyMatch(x -> x.getFile().equals(canonicalPath));
 	}
+
+	public int size() {
+		return smells.size();
+	}
 	
 }

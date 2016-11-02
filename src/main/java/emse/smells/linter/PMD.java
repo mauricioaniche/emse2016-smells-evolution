@@ -24,6 +24,7 @@ public class PMD {
 	public Report run(String path) {
 		try {
 			Cmd cmd = new Cmd(pmdPath);
+			log.info("Running PMD");
 			String response = cmd.execute("./run.sh pmd -d " + path + " -f csv -R phd.xml -language java");
 			CSVParser parsedCsv = CSVParser.parse(response, CSVFormat.DEFAULT);
 			
@@ -38,6 +39,7 @@ public class PMD {
 				report.add(new Smell(file, smell));
 			}
 			
+			log.info("PMD found " + report.size() + " smells");
 			return report;
 		} catch (IOException e) {
 			log.error("error in pmd", e);

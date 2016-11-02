@@ -1,6 +1,5 @@
 package emse.smells;
 
-import org.repodriller.RepoDriller;
 import org.repodriller.RepositoryMining;
 import org.repodriller.Study;
 import org.repodriller.filter.commit.OnlyInMainBranch;
@@ -16,25 +15,23 @@ public class SmellsStudy implements Study {
 
 	private String projectPath;
 	private String csvPath;
+	private String pmdPath;
+	private String linterPath;
 
-	public SmellsStudy(String projectPath, String csvPath) {
+	public SmellsStudy(String projectPath, String csvPath, String pmdPath, String linterPath) {
 		this.projectPath = projectPath;
 		this.csvPath = csvPath;
+		this.pmdPath = pmdPath;
+		this.linterPath = linterPath;
 	}
 
-	public static void main(String[] args) {
-		new RepoDriller().start(new SmellsStudy(args[0], args[1]));
-	}
-	
 	@Override
 	public void execute() {
 	
-		String pmdPath = System.getenv("EMSE_PMD_PATH");
-		String linterPath = System.getenv("EMSE_SPRINGLINT_PATH");
-		
 		new RepositoryMining()
-			.in(GitRepository.allProjectsIn(projectPath))
+			.in(GitRepository.singleProject(projectPath))
 			.through(Commits.all())
+//			.through(Commits.since(new GregorianCalendar(2016, Calendar.JANUARY, 1)))
 			.filters(new OnlyInMainBranch(), new OnlyNoMerge())
 			.process(new SmellElimination(new PMD(pmdPath), new SpringLint(linterPath)), new CSVFile(csvPath))
 			.mine();

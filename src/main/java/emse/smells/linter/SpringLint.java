@@ -1,10 +1,6 @@
 package emse.smells.linter;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -26,10 +22,12 @@ public class SpringLint {
 
 	public Report run(String path) {
 		try {
-			Files.deleteIfExists(new File("smells.csv").toPath());
 			Cmd cmd = new Cmd(linterPath);
+			log.info("Running Springlint");
+			
+			cmd.execute("rm smells.csv");
 			cmd.execute("java -jar springlint.jar -p " + path + " -otype csv -o .");
-			String response = new String(Files.readAllBytes(Paths.get("smells.csv")), StandardCharsets.UTF_8);
+			String response = cmd.execute("cat smells.csv");
 			CSVParser parsedCsv = CSVParser.parse(response, CSVFormat.DEFAULT);
 			
 			Report report = new Report();
@@ -43,6 +41,7 @@ public class SpringLint {
 				report.add(new Smell(file, smell));
 			}
 			
+			log.info("Springlint found " + report.size() + " smells");			
 			return report;
 		} catch (IOException e) {
 			log.error("error in pmd", e);
