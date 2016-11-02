@@ -1,0 +1,2 @@
+/Users/mauricioaniche/workspace/smells-elimination-detector/src/test/repos/
+/Users/mauricioaniche/workspace/smells-elimination-detector/src/test/pmd-bin-5.4.0/bin
