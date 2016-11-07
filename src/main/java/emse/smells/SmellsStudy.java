@@ -1,8 +1,5 @@
 package emse.smells;
 
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-
 import org.repodriller.RepositoryMining;
 import org.repodriller.Study;
 import org.repodriller.filter.commit.OnlyInMainBranch;
@@ -38,8 +35,8 @@ public class SmellsStudy implements Study {
 		
 		new RepositoryMining()
 			.in(GitRepository.singleProject(projectPath))
-//			.through(Commits.all())
-			.through(Commits.since(new GregorianCalendar(2016, Calendar.JUNE, 1)))
+			.through(Commits.all())
+//			.through(Commits.since(new GregorianCalendar(2016, Calendar.JUNE, 1)))
 			.filters(new OnlyInMainBranch(), new OnlyNoMerge())
 			.process(new SmellsVisitor(new PMD(pmdPath), new SpringLint(linterPath), clazzRepo))
 			.mine();
