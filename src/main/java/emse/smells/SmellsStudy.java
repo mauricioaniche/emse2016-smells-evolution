@@ -42,6 +42,7 @@ public class SmellsStudy implements Study {
 			.mine();
 		
 		CSVFile writer = new CSVFile(csvPath + "files.csv");
+		writer.write("project,file,first_seen,first_seen_hash,deleted,deleted_hash");
 		for(ClassInfo ci : clazzRepo.getAllClassInfo()) {
 			writer.write(
 				projectPath,
@@ -55,6 +56,7 @@ public class SmellsStudy implements Study {
 		writer.close();
 
 		writer = new CSVFile(csvPath + "pmd.csv");
+		writer.write("project,file,smell,started,started_hash,lastseen,lastseen_hash,alive");
 		for(ClassInfo ci : clazzRepo.getAllClassInfo()) {
 			for(LiveSmell ls : ci.getAllSmells("pmd")) {
 				writer.write(
@@ -64,6 +66,7 @@ public class SmellsStudy implements Study {
 					(ls.getDayStarted()!=null ? ls.getDayStarted().getTimeInMillis() : "null"),
 					ls.getFirstSeenHash(),
 					(ls.getLastDaySeen()!=null ? ls.getLastDaySeen().getTimeInMillis() : "null"),
+					ls.getLastHashSeen(),
 					ls.isAlive()
 				);
 			}
@@ -71,6 +74,7 @@ public class SmellsStudy implements Study {
 		writer.close();
 
 		writer = new CSVFile(csvPath + "mvc.csv");
+		writer.write("project,file,smell,started,started_hash,lastseen,lastseen_hash,alive");
 		for(ClassInfo ci : clazzRepo.getAllClassInfo()) {
 			for(LiveSmell ls : ci.getAllSmells("mvc")) {
 				writer.write(
@@ -80,6 +84,7 @@ public class SmellsStudy implements Study {
 						(ls.getDayStarted()!=null ? ls.getDayStarted().getTimeInMillis() : "null"),
 						ls.getFirstSeenHash(),
 						(ls.getLastDaySeen()!=null ? ls.getLastDaySeen().getTimeInMillis() : "null"),
+						ls.getLastHashSeen(),
 						ls.isAlive()
 						);
 			}
