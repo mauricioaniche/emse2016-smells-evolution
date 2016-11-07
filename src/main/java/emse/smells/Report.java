@@ -29,4 +29,8 @@ public class Report {
 		return smells.size();
 	}
 	
+	public List<Smell> getSmells() {
+		return smells;
+	}
+
 }

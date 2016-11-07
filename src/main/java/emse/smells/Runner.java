@@ -12,9 +12,9 @@ public class Runner {
 		String linterPath = System.getenv("EMSE_SPRINGLINT_PATH");
 
 //		String projectPath = "/Users/mauricioaniche/workspace/SSP/";
-//		String csvPath = "/Users/mauricioaniche/Desktop/smells-evolution.csv";
+//		String csvPath = "/Users/mauricioaniche/Desktop/";
 //		String pmdPath = "/Users/mauricioaniche/ferramentas/pmd-bin-5.4.1/bin";
-//		String linterPath = "/Users/mauricioaniche/Desktop/";
+//		String linterPath = "/Users/mauricioaniche/ferramentas/springlint/";
 		
 		new RepoDriller().start(new SmellsStudy(projectPath, csvPath, pmdPath, linterPath));
 	}
