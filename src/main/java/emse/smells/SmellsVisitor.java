@@ -53,28 +53,32 @@ public class SmellsVisitor implements CommitVisitor {
 		try {
 
 			repo.getScm().checkout(commit.getHash());
-			List<File> allFiles = onlyJava(FileUtils.getAllFilesInPath(repo.getPath()));
-			log.info("Identified " + allFiles.size() + " java files");
-
-			Report pmdReport = pmd.run(repo.getPath());
-			log.info("PMD smells: " + pmdReport.getSmells());
-			Report linterReport = linter.run(repo.getPath());
-			log.info("Linter smells: " + linterReport.getSmells());
-
-			for(File file : allFiles) {
-				String filePath = file.getCanonicalPath();
+			try {
+				List<File> allFiles = onlyJava(FileUtils.getAllFilesInPath(repo.getPath()));
+				log.info("Identified " + allFiles.size() + " java files");
 				
-				if(!clazzRepo.contains(filePath)) {
-					clazzRepo.add(new ClassInfo(filePath, commit.getDate(), commit.getHash()));
+				Report pmdReport = pmd.run(repo.getPath());
+				log.info("PMD smells: " + pmdReport.getSmells());
+				Report linterReport = linter.run(repo.getPath());
+				log.info("Linter smells: " + linterReport.getSmells());
+				
+				for(File file : allFiles) {
+					String filePath = file.getCanonicalPath();
+					
+					if(!clazzRepo.contains(filePath)) {
+						clazzRepo.add(new ClassInfo(filePath, commit.getDate(), commit.getHash()));
+					}
+					
+					updateSmells(commit, pmdReport, filePath, "pmd");
+					updateSmells(commit, linterReport, filePath, "mvc");
+					
 				}
 				
-				updateSmells(commit, pmdReport, filePath, "pmd");
-				updateSmells(commit, linterReport, filePath, "mvc");
-				
-			}
-	
-		} catch(Exception e) {
-			log.error("error in " + commit.getHash(), e);
+			} catch(Exception e) {
+				log.error("error in:" + commit.getHash(), e);
+			} 
+		}catch(Exception e) {
+			log.error("not able to check out " + commit.getHash(), e);
 		} finally {
 			repo.getScm().reset();
 		}
