@@ -84,29 +84,31 @@ public class SmellsVisitor implements CommitVisitor {
 		}
 	}
 
-	private void updateSmells(Commit commit, Report report, String filePath, String type) {
-		ClassInfo clazzInfo = clazzRepo.get(filePath);
-		boolean classIsCompletelyClean = !report.contains(filePath);
+	private void updateSmells(Commit commit, Report report, String canonicalFilePath, String type) throws IOException {
+		
+		
+		ClassInfo clazzInfo = clazzRepo.get(canonicalFilePath);
+		boolean classIsCompletelyClean = !report.contains(canonicalFilePath);
 		
 		if(classIsCompletelyClean) {
 			clazzInfo.clean(commit.getDate(), commit.getHash(), type);
 		}
 		else {
 			List<LiveSmell> smellsSoFar = clazzInfo.getAliveSmells(type);
-			List<Smell> smellsInThisVersion = report.smellsFor(filePath);
+			List<Smell> smellsInThisVersion = report.smellsFor(canonicalFilePath);
 			
 			// remove smells that were removed in this version.
 			for(LiveSmell ls : smellsSoFar) {
 				boolean smellStillExist = smellsInThisVersion.stream().anyMatch(x -> x.getSmell().equals(ls.getName()));
 				if(!smellStillExist) {
-					log.info("Smell " + ls.getName() + "(" + type + ") still exist in " + filePath);
+					log.info("Smell " + ls.getName() + "(" + type + ") still exist in " + canonicalFilePath);
 					clazzInfo.remove(commit.getDate(), commit.getHash(), type, ls.getName());
 				}
 			}
 			
 			// update list of current/new smells
 			smellsInThisVersion.stream().forEach(x -> {
-				log.info("Updating " + x.getSmell() + "(" + type + ") in " + filePath);
+				log.info("Updating " + x.getSmell() + "(" + type + ") in " + canonicalFilePath);
 				clazzInfo.current(commit.getDate(), commit.getHash(), type, x.getSmell());
 			});
 		}

@@ -1,7 +1,5 @@
 package emse.smells.linter;
 
-import java.io.IOException;
-
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -28,6 +26,7 @@ public class SpringLint {
 			cmd.execute("rm smells.csv");
 			cmd.execute("java -jar springlint.jar -p " + path + " -otype csv -o .");
 			String response = cmd.execute("cat smells.csv");
+			
 			CSVParser parsedCsv = CSVParser.parse(response, CSVFormat.DEFAULT);
 			
 			Report report = new Report();
@@ -43,8 +42,8 @@ public class SpringLint {
 			
 			log.info("Springlint found " + report.size() + " smells");			
 			return report;
-		} catch (IOException e) {
-			log.error("error in pmd", e);
+		} catch (Exception e) {
+			log.error("error in SpringLint", e);
 			return new Report();
 		}
 	}
