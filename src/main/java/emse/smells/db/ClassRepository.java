@@ -3,7 +3,9 @@ package emse.smells.db;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ClassRepository {
 
@@ -31,19 +33,29 @@ public class ClassRepository {
 	}
 
 	public void rename(String oldPath, String newPath) {
-		db.keySet().stream().filter(x -> x.endsWith(oldPath)).forEach(fullOldPath -> {
+		List<String> toRename = findKeysWithPath(oldPath);
+		
+		for(String fullOldPath : toRename) {
 			ClassInfo classInfo = db.get(fullOldPath);
 			db.remove(fullOldPath);
 			classInfo.setFile(fullOldPath.replace(oldPath, newPath));
 			db.put(fullOldPath.replace(oldPath, newPath), classInfo);
-		});
+		}
 	}
 
 	public void delete(String oldPath, Calendar date, String hash) {
-		db.keySet().stream().filter(x -> x.endsWith(oldPath)).forEach(fullOldPath -> {
+		List<String> toDelete = findKeysWithPath(oldPath);
+		
+		for(String fullOldPath : toDelete) {
 			ClassInfo classInfo = db.get(fullOldPath);
 			classInfo.deleted(date, hash);
-		});
+		}
+	}
+
+	private List<String> findKeysWithPath(String oldPath) {
+		return db.keySet().stream()
+		.filter(x -> x.endsWith(oldPath))
+		.collect(Collectors.toList());
 	}
 
 }
