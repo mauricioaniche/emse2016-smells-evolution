@@ -44,7 +44,7 @@ public class SmellsStudy implements Study {
 				@Override
 				public List<ChangeSet> get(SCM scm) {
 					List<ChangeSet> cs = scm.getChangeSets();
-					List<ChangeSet> subList = cs.subList(500, cs.size());
+					List<ChangeSet> subList = cs.subList(0, cs.size()-500);
 					return subList;
 				}
 			})
