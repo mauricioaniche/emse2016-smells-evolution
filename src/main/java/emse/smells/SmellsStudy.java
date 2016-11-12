@@ -1,12 +1,16 @@
 package emse.smells;
 
+import java.util.List;
+
 import org.repodriller.RepositoryMining;
 import org.repodriller.Study;
+import org.repodriller.domain.ChangeSet;
 import org.repodriller.filter.commit.OnlyInMainBranch;
 import org.repodriller.filter.commit.OnlyNoMerge;
-import org.repodriller.filter.range.Commits;
+import org.repodriller.filter.range.CommitRange;
 import org.repodriller.persistence.csv.CSVFile;
 import org.repodriller.scm.GitRepository;
+import org.repodriller.scm.SCM;
 
 import emse.smells.db.ClassInfo;
 import emse.smells.db.ClassRepository;
@@ -35,7 +39,15 @@ public class SmellsStudy implements Study {
 		
 		new RepositoryMining()
 			.in(GitRepository.singleProject(projectPath))
-			.through(Commits.all())
+//			.through(Commits.all())
+			.through(new CommitRange() {
+				@Override
+				public List<ChangeSet> get(SCM scm) {
+					List<ChangeSet> cs = scm.getChangeSets();
+					List<ChangeSet> subList = cs.subList(500, cs.size());
+					return subList;
+				}
+			})
 //			.through(Commits.since(new GregorianCalendar(2016, Calendar.JUNE, 1)))
 			.filters(new OnlyInMainBranch(), new OnlyNoMerge())
 			.process(new SmellsVisitor(new PMD(pmdPath), new SpringLint(linterPath), clazzRepo))
