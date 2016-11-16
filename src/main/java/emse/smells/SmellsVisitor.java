@@ -39,6 +39,12 @@ public class SmellsVisitor implements CommitVisitor {
 	@Override
 	public void process(SCMRepository repo, Commit commit, PersistenceMechanism writer) {
 
+		if(noJavaModifications(commit)) {
+			clazzRepo.nothingChanged("pmd", commit.getHash(), commit.getDate());
+			clazzRepo.nothingChanged("mvc", commit.getHash(), commit.getDate());
+			return;
+		}
+		
 		for(Modification m : commit.getModifications()) {
 			if(m.getType().equals(ModificationType.RENAME)) {
 				log.info("Rename: " + m.getOldPath() + " -> " + m.getNewPath());
@@ -82,6 +88,10 @@ public class SmellsVisitor implements CommitVisitor {
 		} finally {
 			repo.getScm().reset();
 		}
+	}
+
+	private boolean noJavaModifications(Commit commit) {
+		return !commit.getModifications().stream().anyMatch(x -> x.fileNameEndsWith("java"));
 	}
 
 	private void updateSmells(Commit commit, Report report, String canonicalFilePath, String type) throws IOException {

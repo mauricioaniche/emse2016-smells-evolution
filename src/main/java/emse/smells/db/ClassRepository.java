@@ -58,4 +58,11 @@ public class ClassRepository {
 		.collect(Collectors.toList());
 	}
 
+	public void nothingChanged(String type, String hash, Calendar date) {
+		db.values().forEach(x -> {
+			List<LiveSmell> smellyClasses = x.getAliveSmells(type);
+			smellyClasses.stream().forEach(smell -> smell.update(date, hash));
+		});
+	}
+
 }

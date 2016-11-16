@@ -5,8 +5,6 @@ import java.util.List;
 import org.repodriller.RepositoryMining;
 import org.repodriller.Study;
 import org.repodriller.domain.ChangeSet;
-import org.repodriller.filter.commit.OnlyInMainBranch;
-import org.repodriller.filter.commit.OnlyNoMerge;
 import org.repodriller.filter.range.CommitRange;
 import org.repodriller.persistence.csv.CSVFile;
 import org.repodriller.scm.GitRepository;
@@ -38,7 +36,7 @@ public class SmellsStudy implements Study {
 		ClassRepository clazzRepo = new ClassRepository();
 		
 		new RepositoryMining()
-			.in(GitRepository.singleProject(projectPath))
+			.in(GitRepository.singleProject(projectPath, true))
 //			.through(Commits.all())
 			.through(new CommitRange() {
 				@Override
@@ -49,7 +47,7 @@ public class SmellsStudy implements Study {
 				}
 			})
 //			.through(Commits.since(new GregorianCalendar(2016, Calendar.JUNE, 1)))
-			.filters(new OnlyInMainBranch(), new OnlyNoMerge())
+//			.filters(new OnlyInMainBranch(), new OnlyNoMerge())
 			.process(new SmellsVisitor(new PMD(pmdPath), new SpringLint(linterPath), clazzRepo))
 			.mine();
 		
