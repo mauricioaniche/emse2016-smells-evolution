@@ -51,7 +51,7 @@ public class SmellsStudy implements Study {
 			.process(new SmellsVisitor(new PMD(pmdPath), new SpringLint(linterPath), clazzRepo))
 			.mine();
 		
-		CSVFile writer = new CSVFile(csvPath + "files.csv");
+		CSVFile writer = new CSVFile(csvPath, "files.csv");
 		writer.write("project,file,first_seen,first_seen_hash,deleted,deleted_hash");
 		for(ClassInfo ci : clazzRepo.getAllClassInfo()) {
 			writer.write(
@@ -65,7 +65,7 @@ public class SmellsStudy implements Study {
 		}
 		writer.close();
 
-		writer = new CSVFile(csvPath + "pmd.csv");
+		writer = new CSVFile(csvPath, "pmd.csv");
 		writer.write("project,file,smell,started,started_hash,lastseen,lastseen_hash,alive");
 		for(ClassInfo ci : clazzRepo.getAllClassInfo()) {
 			for(LiveSmell ls : ci.getAllSmells("pmd")) {
@@ -83,7 +83,7 @@ public class SmellsStudy implements Study {
 		}
 		writer.close();
 
-		writer = new CSVFile(csvPath + "mvc.csv");
+		writer = new CSVFile(csvPath, "mvc.csv");
 		writer.write("project,file,smell,started,started_hash,lastseen,lastseen_hash,alive");
 		for(ClassInfo ci : clazzRepo.getAllClassInfo()) {
 			for(LiveSmell ls : ci.getAllSmells("mvc")) {
