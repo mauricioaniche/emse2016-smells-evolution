@@ -1,10 +1,12 @@
 package emse.smells.db;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-public class LiveSmell {
+public class LiveSmell implements Serializable {
 
+	private static final long serialVersionUID = 1L;
 	private String name;
 	private Calendar dayStarted;
 	private String firstSeenHash;

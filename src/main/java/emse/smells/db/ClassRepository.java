@@ -1,5 +1,6 @@
 package emse.smells.db;
 
+import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
@@ -7,8 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class ClassRepository {
+public class ClassRepository implements Serializable {
 
+	private static final long serialVersionUID = 1L;
 	private Map<String, ClassInfo> db;
 
 	public ClassRepository() {

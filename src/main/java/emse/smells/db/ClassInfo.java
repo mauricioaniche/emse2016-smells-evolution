@@ -1,5 +1,6 @@
 package emse.smells.db;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -9,8 +10,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class ClassInfo {
+public class ClassInfo implements Serializable {
 
+	private static final long serialVersionUID = 1L;
 	private String file;
 	private Calendar firstSeen;
 	private String firstSeenHash;
@@ -102,6 +104,14 @@ public class ClassInfo {
 	public void setDeletedHash(String deletedHash) {
 		this.deletedHash = deletedHash;
 	}
+
+	@Override
+	public String toString() {
+		return "ClassInfo [file=" + file + ", firstSeen=" + firstSeen + ", firstSeenHash=" + firstSeenHash + ", smells="
+				+ smells + ", deletedDate=" + deletedDate + ", deletedHash=" + deletedHash + "]";
+	}
+	
+	
 	
 	
 }

@@ -1,7 +1,12 @@
 package emse.smells;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.repodriller.RepositoryMining;
 import org.repodriller.Study;
 import org.repodriller.domain.ChangeSet;
@@ -22,8 +27,12 @@ public class SmellsStudy implements Study {
 	private String csvPath;
 	private String pmdPath;
 	private String linterPath;
+	
+	private static Logger log = Logger.getLogger(SmellsStudy.class);
+	private String projectName;
 
 	public SmellsStudy(String projectPath, String csvPath, String pmdPath, String linterPath) {
+		this.projectName = extractProjectName(projectPath);
 		this.projectPath = projectPath;
 		this.csvPath = csvPath;
 		this.pmdPath = pmdPath;
@@ -37,7 +46,6 @@ public class SmellsStudy implements Study {
 		
 		new RepositoryMining()
 			.in(GitRepository.singleProject(projectPath, true))
-//			.through(Commits.all())
 			.through(new CommitRange() {
 				@Override
 				public List<ChangeSet> get(SCM scm) {
@@ -46,13 +54,12 @@ public class SmellsStudy implements Study {
 					return subList;
 				}
 			})
-//			.through(Commits.since(new GregorianCalendar(2016, Calendar.JUNE, 1)))
-//			.filters(new OnlyInMainBranch(), new OnlyNoMerge())
+//			.through(Commits.since(new GregorianCalendar(2016, Calendar.OCTOBER, 20)))
 			.process(new SmellsVisitor(new PMD(pmdPath), new SpringLint(linterPath), clazzRepo))
 			.mine();
 		
-		CSVFile writer = new CSVFile(csvPath, "files.csv");
-		writer.write("project,file,first_seen,first_seen_hash,deleted,deleted_hash");
+		CSVFile writer = new CSVFile(csvPath, projectName + "-files.csv");
+		writer.write("project","file","first_seen","first_seen_hash","deleted","deleted_hash");
 		for(ClassInfo ci : clazzRepo.getAllClassInfo()) {
 			writer.write(
 				projectPath,
@@ -65,8 +72,8 @@ public class SmellsStudy implements Study {
 		}
 		writer.close();
 
-		writer = new CSVFile(csvPath, "pmd.csv");
-		writer.write("project,file,smell,started,started_hash,lastseen,lastseen_hash,alive");
+		writer = new CSVFile(csvPath, projectName + "-pmd.csv");
+		writer.write("project","file","smell","started","started_hash","lastseen","lastseen_hash","alive");
 		for(ClassInfo ci : clazzRepo.getAllClassInfo()) {
 			for(LiveSmell ls : ci.getAllSmells("pmd")) {
 				writer.write(
@@ -83,8 +90,8 @@ public class SmellsStudy implements Study {
 		}
 		writer.close();
 
-		writer = new CSVFile(csvPath, "mvc.csv");
-		writer.write("project,file,smell,started,started_hash,lastseen,lastseen_hash,alive");
+		writer = new CSVFile(csvPath, projectName + "-mvc.csv");
+		writer.write("project","file","smell","started","started_hash","lastseen","lastseen_hash","alive");
 		for(ClassInfo ci : clazzRepo.getAllClassInfo()) {
 			for(LiveSmell ls : ci.getAllSmells("mvc")) {
 				writer.write(
@@ -100,6 +107,26 @@ public class SmellsStudy implements Study {
 			}
 		}
 		writer.close();
+		
+		serialize(clazzRepo);
+	}
+
+	private void serialize(ClassRepository clazzRepo) {
+		try {
+	         FileOutputStream fileOut =
+	         new FileOutputStream(csvPath + (csvPath.endsWith(File.separator) ? "" : File.separator) + projectName + "-repo.out");
+	         ObjectOutputStream out = new ObjectOutputStream(fileOut);
+	         out.writeObject(clazzRepo);
+	         out.close();
+	         fileOut.close();
+	      }catch(IOException ex) {
+	    	  log.error(ex);
+	      }		
+	}
+	
+	private String extractProjectName(String path) {
+		String[] div = path.split(File.separator);
+		return div[div.length-1];
 	}
 
 }
