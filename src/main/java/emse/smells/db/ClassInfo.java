@@ -16,29 +16,32 @@ public class ClassInfo implements Serializable {
 	private String file;
 	private Calendar firstSeen;
 	private String firstSeenHash;
+	private int firstSeenNumber;
 	private Map<String, List<LiveSmell>> smells;
 	private Calendar deletedDate;
 	private String deletedHash;
+	private int deletedNumber;
 
-	public ClassInfo(String file, Calendar firstSeen, String firstSeenHash) {
+	public ClassInfo(String file, Calendar firstSeen, String firstSeenHash, int count) {
 		this.file = file;
 		this.firstSeenHash = firstSeenHash;
 		this.firstSeen = firstSeen;
+		this.firstSeenNumber = count;
 		this.smells = new HashMap<>();
 		
 		smells.put("mvc", new ArrayList<>());
 		smells.put("pmd", new ArrayList<>());
 	}
 	
-	public void current(Calendar date, String hash, String type, String smell) {
+	public void current(Calendar date, String hash, int count, String type, String smell) {
 		Optional<LiveSmell> found = getAliveSmells(type, smell).findFirst();
 		if(!found.isPresent()) {
-			LiveSmell liveSmell = new LiveSmell(smell, date, hash);
+			LiveSmell liveSmell = new LiveSmell(smell, date, hash, count);
 			smells.get(type).add(liveSmell);
 		}
 			
 		LiveSmell liveSmell = getAliveSmells(type, smell).findFirst().get();
-		liveSmell.update(date, hash);
+		liveSmell.update(date, hash, count);
 		
 	}
 
@@ -58,17 +61,17 @@ public class ClassInfo implements Serializable {
 		return smells.get(type).stream().filter(x -> x.isAlive()).collect(Collectors.toList());
 	}
 
-	public void clean(Calendar date, String hash, String type) {
+	public void clean(Calendar date, String hash, int count, String type) {
 		List<LiveSmell> liveSmells = getAliveSmells(type);
 		for(LiveSmell smell : liveSmells) {
-			smell.removed(date, hash);
+			smell.removed(date, hash, count);
 		}
 	}
 
-	public void remove(Calendar date, String hash, String type, String smellName) {
+	public void remove(Calendar date, String hash, int count, String type, String smellName) {
 		List<LiveSmell> liveSmells = getAliveSmells(type, smellName).collect(Collectors.toList());
 		for(LiveSmell smell : liveSmells) {
-			smell.removed(date, hash);
+			smell.removed(date, hash, count);
 		}
 	}
 
@@ -103,6 +106,14 @@ public class ClassInfo implements Serializable {
 
 	public void setDeletedHash(String deletedHash) {
 		this.deletedHash = deletedHash;
+	}
+	
+	public int getDeletedNumber() {
+		return deletedNumber;
+	}
+	
+	public int getFirstSeenNumber() {
+		return firstSeenNumber;
 	}
 
 	@Override

@@ -28,6 +28,7 @@ public class SmellsVisitor implements CommitVisitor {
 	private SpringLint linter;
 
 	private ClassRepository clazzRepo;
+	private int count = 0;
 
 
 	public SmellsVisitor(PMD pmd, SpringLint linter, ClassRepository clazzRepo) {
@@ -39,9 +40,11 @@ public class SmellsVisitor implements CommitVisitor {
 	@Override
 	public void process(SCMRepository repo, Commit commit, PersistenceMechanism writer) {
 
+		count++;
+		
 		if(noJavaModifications(commit)) {
-			clazzRepo.nothingChanged("pmd", commit.getHash(), commit.getDate());
-			clazzRepo.nothingChanged("mvc", commit.getHash(), commit.getDate());
+			clazzRepo.nothingChanged("pmd", commit.getHash(), commit.getDate(), count);
+			clazzRepo.nothingChanged("mvc", commit.getHash(), commit.getDate(), count);
 			return;
 		}
 		
@@ -72,7 +75,7 @@ public class SmellsVisitor implements CommitVisitor {
 					String filePath = file.getCanonicalPath();
 					
 					if(!clazzRepo.contains(filePath)) {
-						clazzRepo.add(new ClassInfo(filePath, commit.getDate(), commit.getHash()));
+						clazzRepo.add(new ClassInfo(filePath, commit.getDate(), commit.getHash(), count));
 					}
 					
 					updateSmells(commit, pmdReport, filePath, "pmd");
@@ -101,7 +104,7 @@ public class SmellsVisitor implements CommitVisitor {
 		boolean classIsCompletelyClean = !report.contains(canonicalFilePath);
 		
 		if(classIsCompletelyClean) {
-			clazzInfo.clean(commit.getDate(), commit.getHash(), type);
+			clazzInfo.clean(commit.getDate(), commit.getHash(), count, type);
 		}
 		else {
 			List<LiveSmell> smellsSoFar = clazzInfo.getAliveSmells(type);
@@ -112,14 +115,14 @@ public class SmellsVisitor implements CommitVisitor {
 				boolean smellStillExist = smellsInThisVersion.stream().anyMatch(x -> x.getSmell().equals(ls.getName()));
 				if(!smellStillExist) {
 					log.info("Smell " + ls.getName() + "(" + type + ") still exist in " + canonicalFilePath);
-					clazzInfo.remove(commit.getDate(), commit.getHash(), type, ls.getName());
+					clazzInfo.remove(commit.getDate(), commit.getHash(), count, type, ls.getName());
 				}
 			}
 			
 			// update list of current/new smells
 			smellsInThisVersion.stream().forEach(x -> {
 				log.info("Updating " + x.getSmell() + "(" + type + ") in " + canonicalFilePath);
-				clazzInfo.current(commit.getDate(), commit.getHash(), type, x.getSmell());
+				clazzInfo.current(commit.getDate(), commit.getHash(), count, type, x.getSmell());
 			});
 		}
 	}

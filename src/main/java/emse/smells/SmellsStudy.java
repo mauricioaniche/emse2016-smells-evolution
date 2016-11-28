@@ -58,57 +58,51 @@ public class SmellsStudy implements Study {
 			.process(new SmellsVisitor(new PMD(pmdPath), new SpringLint(linterPath), clazzRepo))
 			.mine();
 		
+		outputFileList(clazzRepo);
+		output(clazzRepo, "pmd");
+		output(clazzRepo, "mvc");
+		
+		serialize(clazzRepo);
+	}
+
+	private void outputFileList(ClassRepository clazzRepo) {
 		CSVFile writer = new CSVFile(csvPath, projectName + "-files.csv");
-		writer.write("project","file","first_seen","first_seen_hash","deleted","deleted_hash");
+		writer.write("project","file","first_seen","first_seen_hash","first_seen_number", "deleted","deleted_hash", "deleted_number");
 		for(ClassInfo ci : clazzRepo.getAllClassInfo()) {
 			writer.write(
 				projectName,
 				ci.getFile(),
 				ci.getFirstSeen().getTimeInMillis(),
 				ci.getFirstSeenHash(),
+				ci.getFirstSeenNumber(),
 				(ci.getDeletedDate()!=null ? ci.getDeletedDate().getTimeInMillis() : "null"),
-				ci.getDeletedHash()
+				ci.getDeletedHash(),
+				ci.getDeletedNumber()
 			);
 		}
 		writer.close();
+	}
 
-		writer = new CSVFile(csvPath, projectName + "-pmd.csv");
-		writer.write("project","file","smell","started","started_hash","lastseen","lastseen_hash","alive");
+	private void output(ClassRepository clazzRepo, String type) {
+		CSVFile writer = new CSVFile(csvPath, projectName + "-" + type + ".csv");
+		writer.write("project","file","smell","started","started_hash","started_number", "lastseen","lastseen_hash","lastseen_number", "alive");
 		for(ClassInfo ci : clazzRepo.getAllClassInfo()) {
-			for(LiveSmell ls : ci.getAllSmells("pmd")) {
+			for(LiveSmell ls : ci.getAllSmells(type)) {
 				writer.write(
 					projectName,
 					ci.getFile(),
 					ls.getName(),
 					(ls.getDayStarted()!=null ? ls.getDayStarted().getTimeInMillis() : "null"),
 					ls.getFirstSeenHash(),
+					ls.getFirstSeenNumber(),
 					(ls.getLastDaySeen()!=null ? ls.getLastDaySeen().getTimeInMillis() : "null"),
 					ls.getLastHashSeen(),
+					ls.getLastSeenNumber(),
 					(ls.isAlive() ? "1" : "0")
 				);
 			}
 		}
-		writer.close();
-
-		writer = new CSVFile(csvPath, projectName + "-mvc.csv");
-		writer.write("project","file","smell","started","started_hash","lastseen","lastseen_hash","alive");
-		for(ClassInfo ci : clazzRepo.getAllClassInfo()) {
-			for(LiveSmell ls : ci.getAllSmells("mvc")) {
-				writer.write(
-						projectName,
-						ci.getFile(),
-						ls.getName(),
-						(ls.getDayStarted()!=null ? ls.getDayStarted().getTimeInMillis() : "null"),
-						ls.getFirstSeenHash(),
-						(ls.getLastDaySeen()!=null ? ls.getLastDaySeen().getTimeInMillis() : "null"),
-						ls.getLastHashSeen(),
-						(ls.isAlive() ? "1" : "0")
-						);
-			}
-		}
-		writer.close();
-		
-		serialize(clazzRepo);
+		writer.close();		
 	}
 
 	private void serialize(ClassRepository clazzRepo) {

@@ -60,10 +60,10 @@ public class ClassRepository implements Serializable {
 		.collect(Collectors.toList());
 	}
 
-	public void nothingChanged(String type, String hash, Calendar date) {
+	public void nothingChanged(String type, String hash, Calendar date, int count) {
 		db.values().forEach(x -> {
 			List<LiveSmell> smellyClasses = x.getAliveSmells(type);
-			smellyClasses.stream().forEach(smell -> smell.update(date, hash));
+			smellyClasses.stream().forEach(smell -> smell.update(date, hash, count));
 		});
 	}
 
