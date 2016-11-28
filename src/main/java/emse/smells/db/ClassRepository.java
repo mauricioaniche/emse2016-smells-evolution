@@ -45,12 +45,12 @@ public class ClassRepository implements Serializable {
 		}
 	}
 
-	public void delete(String oldPath, Calendar date, String hash) {
+	public void delete(String oldPath, Calendar date, String hash, int count) {
 		List<String> toDelete = findKeysWithPath(oldPath);
 		
 		for(String fullOldPath : toDelete) {
 			ClassInfo classInfo = db.get(fullOldPath);
-			classInfo.deleted(date, hash);
+			classInfo.deleted(date, hash, count);
 		}
 	}
 

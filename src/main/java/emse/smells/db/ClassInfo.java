@@ -87,9 +87,10 @@ public class ClassInfo implements Serializable {
 		this.file = file;
 	}
 
-	public void deleted(Calendar deletedDate, String deletedHash) {
+	public void deleted(Calendar deletedDate, String deletedHash, int count) {
 		this.deletedDate = deletedDate;
 		this.deletedHash = deletedHash;
+		this.deletedNumber = count;
 	}
 
 	public Calendar getDeletedDate() {

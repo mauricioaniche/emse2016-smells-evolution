@@ -30,7 +30,6 @@ public class SmellsVisitor implements CommitVisitor {
 	private ClassRepository clazzRepo;
 	private int count = 0;
 
-
 	public SmellsVisitor(PMD pmd, SpringLint linter, ClassRepository clazzRepo) {
 		this.pmd = pmd;
 		this.linter = linter;
@@ -55,7 +54,7 @@ public class SmellsVisitor implements CommitVisitor {
 			}
 			else if(m.getType().equals(ModificationType.DELETE)) {
 				log.info("Deleted: " + m.getOldPath());
-				clazzRepo.delete(m.getOldPath(), commit.getDate(), commit.getHash());
+				clazzRepo.delete(m.getOldPath(), commit.getDate(), commit.getHash(), count);
 			}
 		}
 		
