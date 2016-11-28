@@ -62,7 +62,7 @@ public class SmellsStudy implements Study {
 		writer.write("project","file","first_seen","first_seen_hash","deleted","deleted_hash");
 		for(ClassInfo ci : clazzRepo.getAllClassInfo()) {
 			writer.write(
-				projectPath,
+				projectName,
 				ci.getFile(),
 				ci.getFirstSeen().getTimeInMillis(),
 				ci.getFirstSeenHash(),
@@ -77,14 +77,14 @@ public class SmellsStudy implements Study {
 		for(ClassInfo ci : clazzRepo.getAllClassInfo()) {
 			for(LiveSmell ls : ci.getAllSmells("pmd")) {
 				writer.write(
-					projectPath,
+					projectName,
 					ci.getFile(),
 					ls.getName(),
 					(ls.getDayStarted()!=null ? ls.getDayStarted().getTimeInMillis() : "null"),
 					ls.getFirstSeenHash(),
 					(ls.getLastDaySeen()!=null ? ls.getLastDaySeen().getTimeInMillis() : "null"),
 					ls.getLastHashSeen(),
-					ls.isAlive()
+					(ls.isAlive() ? "1" : "0")
 				);
 			}
 		}
@@ -95,14 +95,14 @@ public class SmellsStudy implements Study {
 		for(ClassInfo ci : clazzRepo.getAllClassInfo()) {
 			for(LiveSmell ls : ci.getAllSmells("mvc")) {
 				writer.write(
-						projectPath,
+						projectName,
 						ci.getFile(),
 						ls.getName(),
 						(ls.getDayStarted()!=null ? ls.getDayStarted().getTimeInMillis() : "null"),
 						ls.getFirstSeenHash(),
 						(ls.getLastDaySeen()!=null ? ls.getLastDaySeen().getTimeInMillis() : "null"),
 						ls.getLastHashSeen(),
-						ls.isAlive()
+						(ls.isAlive() ? "1" : "0")
 						);
 			}
 		}
